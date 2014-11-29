@@ -28,9 +28,11 @@
         }
       };
     </script>
-    <script src="./windy.js"></script>
+  
     <script src="http://js.arcgis.com/3.8compact/"></script>
     <script>
+        var point;
+         var mp = webMercatorUtils.webMercatorToGeographic(evt.mapPoint);
       var map, rasterLayer;
       var canvasSupport;
 
@@ -39,13 +41,13 @@
         "esri/domUtils", "esri/request",
         "dojo/parser", "dojo/number", "dojo/json", "dojo/dom", 
         "dijit/registry", "plugins/RasterLayer","esri/layers/WebTiledLayer",
-        "esri/config",
+        "esri/config", "esri/geometry/webMercatorUtils", "esri/geometry/Point", "esri/SpatialReference",
         "dojo/domReady!"
       ], function(
         Map, ArcGISTiledMapServiceLayer, 
         domUtils, esriRequest,
         parser, number, JSON, dom, 
-        registry, RasterLayer, WebTiledLayer, esriConfig
+        registry, RasterLayer, WebTiledLayer, esriConfig, webMercatorUtils, Point, SpatialReference
       ){
         parser.parse();
         // does the browser support canvas? 
@@ -67,6 +69,13 @@
 
         map.on("load", mapLoaded);
 
+function showCoordinates(evt) {
+     console.log("test");
+          //the map is in web mercator but display coordinates in geographic (lat, long)
+       
+          //display mouse coordinates
+         console.log(mp.x.toFixed(3) + ", " + mp.y.toFixed(3));
+        }
         function mapLoaded() {
 
           // Add raster layer
@@ -80,7 +89,9 @@
             map.on("resize", function(){});
             map.on("zoom-start", redraw);
             map.on("pan-start", redraw);
-
+            map.on("mouse-move", showCoordinates);
+          map.on("mouse-drag", showCoordinates);
+ 
             var layersRequest = esriRequest({
               url: './gfs.json',
               content: {},
@@ -105,7 +116,8 @@
         }
 
         function redraw(){
-
+             point = new Point(-118.15, 33.80, new SpatialReference());
+            console.log(point);
           rasterLayer._element.width = map.width;
           rasterLayer._element.height = map.height;
 
@@ -123,6 +135,7 @@
         }
       });
     </script>
+        <script src="./windy.js"></script>
   </head>
   
   <body class="">
